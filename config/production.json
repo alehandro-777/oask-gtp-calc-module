@@ -4,5 +4,7 @@
       },
       "paginator": {
         "limit": 24
-      }     
+      },
+      "contract_hour" : 7,
+      "csv_separ" : ";"        
 }
