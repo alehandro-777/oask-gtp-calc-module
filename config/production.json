@@ -1,10 +1,15 @@
 {
     "dbConfig": {
-        "connString": "mongodb+srv://mongo_masterkey123:2hRgv56G8ZygFfc@cluster0.cfjsw.mongodb.net/oask-gtp-data-prep-module?retryWrites=true&w=majority"
+        "connString": "mongodb+srv://mongo_masterkey123:2hRgv56G8ZygFfc@cluster0.cfjsw.mongodb.net/oask-gtp-calc-module?retryWrites=true&w=majority"
       },
       "paginator": {
         "limit": 24
       },
+      "web_api": {
+        "oask-gtp-uri": "http://localhost:3000",
+        "oask-gtp-uri1":"https://oask-gtp-web-api2.herokuapp.com",
+        "init_history_hh_count": 3
+  },
       "contract_hour" : 7,
       "csv_separ" : ";"        
 }

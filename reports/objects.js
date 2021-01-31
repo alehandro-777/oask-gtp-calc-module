@@ -86,8 +86,20 @@ let objects = [
     {fn:F103, args:`22;  Краснопопівське ПСГ, відбір;6;1`},   //Контроль розбалансу доб данные
     {fn:F103, args:`23;  Краснопопівське ПСГ, закачка;6;2`},   //Контроль розбалансу доб данные
 
-    {fn:F101, args:';11.0;11.1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;'},   //Панорама режим строка
-    {fn:F101, args:';11.2;11.3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;'},   //Панорама режим footer
+    {fn:F101, args:';11.0;11.1;;2.4;2.0;2.1;75.0;;;3.4;3.0;3.1;77.0;;;4.4;4.0;4.1;76.0;;;7.4;7.0;7.1;83.0;;;9.4;9.0;9.1;84.0;;;6.4;6.0;6.1;85.0;;;0.4;0.0;0.1;78.0;;;1.4;1.0;1.1;80.0;;;5.4;5.0;5.1;79.0;;;8.4;8.0;8.1;81.0;;;10.8;10.4;10.5;10.0;10.1;82.0;;'},   //Панорама режим строка
+    {fn:F101, args:';11.2;11.3;;2.5;2.2;2.3;75.1;;;3.5;3.2;3.3;77.1;;;4.5;4.2;4.3;76.1;;;7.5;7.2;7.3;83.1;;;9.5;9.2;9.3;84.1;;;6.5;6.2;6.3;85.1;;;0.5;0.2;0.3;78.1;;;1.5;1.2;1.3;80.1;;;5.5;5.2;5.3;79.1;;;8.5;8.2;8.3;81.1;;;10.9;10.6;10.7;10.2;10.3;82.1;;'},   //Панорама режим footer
+
+    {fn:F8, args:'209'},   //75 Мринське ВУПЗГ.ПСГ Мринське.Qвтв ВОГ
+    {fn:F8, args:'210'},   //76 Мринське ВУПЗГ.ПСГ Солоха.Qвтв ВОГ
+    {fn:F8, args:'211'},   //77 Мринське ВУПЗГ.ПСГ Олишівка.Qвтв ВОГ
+    {fn:F8, args:'212'},   //78 Богородчанське ВУПЗГ.ПСГ Богородчани.Qвтв ВОГ
+    {fn:F8, args:'213'},   //79 Опарське ВУПЗГ.ПСГ Опарське.Qвтв ВОГ
+    {fn:F8, args:'214'},   //80 Дашавське ВУПЗГ.ПСГ Дашавське.Qвтв ВОГ
+    {fn:F8, args:'215'},   //81 Стрийське ВУПЗГ.ПСГ Угерське.Qвтв ВОГ
+    {fn:F8, args:'216'},   //82 Стрийське ВУПЗГ.ПСГ Більче-Волиця.Qвтв ВОГ
+    {fn:F8, args:'217'},   //83 Пролетарське ВУПЗГ.ПСГ Пролетарське.Qвтв ВОГ
+    {fn:F8, args:'218'},   //84 Пролетарське ВУПЗГ.ПСГ Кегичівське.Qвтв ВОГ
+    {fn:F8, args:'219'},   //85 Пролетарське ВУПЗГ.ПСГ Краснопопівське.Qвтв ВОГ
 
 ]
 
@@ -99,13 +111,14 @@ exports.getObject = (i) =>{
 async function F1(start, end, args_str) {
     let result =[]
     let args = ParseArgs(args_str)
+    try {
         //request all states up to current
         let state_resp = await web_api.getOaskGtpCurrPointValue(+args[1], '2010-01-01', GetNowStr());
         let vog_resp = await web_api.getOaskGtpCurrPointValue(+args[0], start, end );
 
-        let vog_column = vog_resp.data.values;
-        let state_column = state_resp.data.values;
-        let sum_vog = vog_resp.data.group[0].sum;
+        let vog_column = vog_resp.values;
+        let state_column = state_resp.values;
+        let sum_vog = vog_resp.group[0].sum;
 
         let withdr = Calc_WithdrawInjection_Column(vog_column, state_column, 1);
         let inj = Calc_WithdrawInjection_Column(vog_column, state_column, 2);
@@ -113,13 +126,18 @@ async function F1(start, end, args_str) {
         let sum_w = SummColumn(withdr)
         let sum_i = SummColumn(inj)
 
-    result.push(withdr)//0
-    result.push(inj)//1
-    result.push(sum_w)//2
-    result.push(sum_i)//3
+    result.push(withdr)     //0
+    result.push(inj)        //1
+    result.push(sum_w)      //2
+    result.push(sum_i)      //3
 
-    result.push(vog_column)
-    result.push(sum_vog)
+    result.push(vog_column) //4
+    result.push(sum_vog)    //5
+        
+    } catch (error) {
+        console.error("F1", error)
+        return result
+    }
 
     //console.log(result)
     return result
@@ -128,18 +146,19 @@ async function F1(start, end, args_str) {
 async function F2(start, end, args_str) {
     let result =[]
     let args = ParseArgs(args_str)
+    try {
         //request all states up to current
         let state_resp = await web_api.getOaskGtpCurrPointValue(+args[2], '2010-01-01', GetNowStr());
         let vog_resp = await web_api.getOaskGtpCurrPointValue(+args[0], start, end );
         let vog1_resp = await web_api.getOaskGtpCurrPointValue(+args[1], start, end );
 
-        let state_intervals = state_resp.data.values
+        let state_intervals = state_resp.values
 
-        let sum_vog1 = vog_resp.data.group[0].sum;
-        let sum_vog2 = vog1_resp.data.group[0].sum;
+        let sum_vog1 = vog_resp.group[0].sum;
+        let sum_vog2 = vog1_resp.group[0].sum;
 
-        let vog1 = vog_resp.data.values;
-        let vog2 = vog1_resp.data.values;
+        let vog1 = vog_resp.values;
+        let vog2 = vog1_resp.values;
 
         let withdr2 = Calc_WithdrawInjection_Column(vog1, state_intervals, 1);
         let inj2 = Calc_WithdrawInjection_Column(vog1, state_intervals, 2);
@@ -149,19 +168,30 @@ async function F2(start, end, args_str) {
 
         let withdr = SummColumns([withdr1, withdr2])
         let inj = SummColumns([inj1, inj2])
+        let vog = SummColumns([vog1, vog2])
 
         let sum_w = SummColumn(withdr)
         let sum_i = SummColumn(inj)
+        let sum_vog = SummColumn(vog)
 
     result.push(withdr)
     result.push(inj)
     result.push(sum_w)
     result.push(sum_i)
 
-    result.push(vog1)
-    result.push(vog2)
-    result.push(sum_vog1)
-    result.push(sum_vog2)    
+    result.push(vog1)       //4
+    result.push(vog2)       //5
+    result.push(sum_vog1)  //6
+    result.push(sum_vog2)  //7
+    result.push(vog)       //8
+    result.push(sum_vog)   //9
+
+    } catch (error) {
+        console.error("F1", error)
+        return result
+    }
+
+
 
     //console.log(result)
     return result
@@ -172,23 +202,31 @@ async function F3(start, end, args_str) {
     let promises =[]
     let responses;
     let args = ParseArgs(args_str)
+    try {
 
-    for (let i = 0; i < args.length; i++) {
-        const obj = objects[ +args[i] ];
-        let res = obj.fn( start, end, obj.args)
-        promises.push(res)
-    }    
-    responses = await Promise.all(promises)
+        for (let i = 0; i < args.length; i++) {
+            const obj = objects[ +args[i] ];
+            let res = obj.fn( start, end, obj.args)
+            promises.push(res)
+        }    
+        responses = await Promise.all(promises)
+    
+        let withdr = SummColumns(responses.map(resp=>resp[0])) //withdr column
+        let inj = SummColumns(responses.map(resp=>resp[1]))    //inj  column
+        let sum_w = SummColumn(withdr)
+        let sum_i = SummColumn(inj)
+    
+        result.push(withdr)
+        result.push(inj)
+        result.push(sum_w)
+        result.push(sum_i)  
 
-    let withdr = SummColumns(responses.map(resp=>resp[0])) //withdr column
-    let inj = SummColumns(responses.map(resp=>resp[1]))    //inj  column
-    let sum_w = SummColumn(withdr)
-    let sum_i = SummColumn(inj)
+    } catch (error) {
+        console.error("F1", error)
+        return result
+    }
 
-    result.push(withdr)
-    result.push(inj)
-    result.push(sum_w)
-    result.push(sum_i)
+
 
     return result
 }
@@ -198,32 +236,39 @@ async function F4(start, end, args_str) {
     let result =[]
     let promises =[]
     let args = ParseArgs(args_str)
+    try {
+        for (let i = 0; i < args.length; i++) {
+            let res = web_api.getOaskGtpCurrPointValue(+args[i], start, end );
+            promises.push(res)
+        }    
+        responses = await Promise.all(promises)
+    
+        let p_in_column = responses[0].values;
+        let p_out_column = responses[1].values;
+        let n_gpa_column = responses[2].values;    
+        let e_column = DivideColumns(p_in_column, p_out_column)
+    
+        let avg_p_in = AverageColumn(p_in_column)
+        let avg_p_out = AverageColumn(p_out_column)
+        let avg_n_gpa = LastInColumn(n_gpa_column)
+        let avg_e = AverageColumn(e_column)
+    
+        result.push(p_in_column)
+        result.push(p_out_column)
+        result.push(n_gpa_column)
+        result.push(e_column)
+    
+        result.push(avg_p_in)
+        result.push(avg_p_out)
+        result.push(avg_n_gpa)
+        result.push(avg_e)    
 
-    for (let i = 0; i < args.length; i++) {
-        let res = web_api.getOaskGtpCurrPointValue(+args[i], start, end );
-        promises.push(res)
-    }    
-    responses = await Promise.all(promises)
+    } catch (error) {
+        console.error("F4", error)
+        return result
+    }
 
-    let p_in_column = responses[0].data.values;
-    let p_out_column = responses[1].data.values;
-    let n_gpa_column = responses[2].data.values;    
-    let e_column = DivideColumns(p_in_column, p_out_column)
 
-    let avg_p_in = AverageColumn(p_in_column)
-    let avg_p_out = AverageColumn(p_out_column)
-    let avg_n_gpa = LastInColumn(n_gpa_column)
-    let avg_e = AverageColumn(e_column)
-
-    result.push(p_in_column)
-    result.push(p_out_column)
-    result.push(n_gpa_column)
-    result.push(e_column)
-
-    result.push(avg_p_in)
-    result.push(avg_p_out)
-    result.push(avg_n_gpa)
-    result.push(avg_e)
 
     return result
 }
@@ -231,14 +276,21 @@ async function F4(start, end, args_str) {
 async function F5(start, end, args_str) {
     let result =[]
     let args = ParseArgs(args_str)
-    const obj = objects[ +args[0] ];
-    let res = await obj.fn( start, end, obj.args)
-    let number_resp = await web_api.getOaskGtpCurrPointValue(+args[1], start, end );
+    try {
+        const obj = objects[ +args[0] ];
+        let res = await obj.fn( start, end, obj.args)
+        let number_resp = await web_api.getOaskGtpCurrPointValue(+args[1], start, end );
+    
+        let num_column = number_resp.values;
+        let num_last = number_resp.group[0].last;
+    
+        result = [...res, num_column, num_last];        
+    } catch (error) {
+        console.error("F5", error)
+        return result
+    }
 
-    let num_column = number_resp.data.values;
-    let num_last = number_resp.data.group[0].last;
 
-    result = [...res, num_column, num_last];
 
     //console.log(result)
     return result
@@ -247,22 +299,29 @@ async function F5(start, end, args_str) {
 async function F6(start, end, args_str) {
     let result =[]
     let args = ParseArgs(args_str)
-    const obj = objects[ +args[0] ];
-    let res = await obj.fn( start, end, obj.args)
-    let number1_resp = await web_api.getOaskGtpCurrPointValue(+args[1], start, end );
-    let number2_resp = await web_api.getOaskGtpCurrPointValue(+args[2], start, end );
-    let number3_resp = await web_api.getOaskGtpCurrPointValue(+args[3], start, end );
-    let number4_resp = await web_api.getOaskGtpCurrPointValue(+args[4], start, end );
+    try {
+        const obj = objects[ +args[0] ];
+        let res = await obj.fn( start, end, obj.args)
+        let number1_resp = await web_api.getOaskGtpCurrPointValue(+args[1], start, end );
+        let number2_resp = await web_api.getOaskGtpCurrPointValue(+args[2], start, end );
+        let number3_resp = await web_api.getOaskGtpCurrPointValue(+args[3], start, end );
+        let number4_resp = await web_api.getOaskGtpCurrPointValue(+args[4], start, end );
+    
+        let num_column1 = number1_resp.values;
+        let num_column2 = number2_resp.values;
+        let num_column3 = number3_resp.values;
+        let num_column4 = number4_resp.values;
+    
+        let num_column = SummColumns([num_column1,num_column2,num_column3,num_column4]);
+        let num_last = LastInColumn(num_column)
+    
+        result = [...res, num_column, num_last];        
+    } catch (error) {
+        console.error("F6", error)
+        return result
+    }
 
-    let num_column1 = number1_resp.data.values;
-    let num_column2 = number2_resp.data.values;
-    let num_column3 = number3_resp.data.values;
-    let num_column4 = number4_resp.data.values;
 
-    let num_column = SummColumns([num_column1,num_column2,num_column3,num_column4]);
-    let num_last = LastInColumn(num_column)
-
-    result = [...res, num_column, num_last];
     
     //console.log(result)
     return result
@@ -271,29 +330,60 @@ async function F6(start, end, args_str) {
 async function F7(start, end, args_str) {
     let result =[]
     let args = ParseArgs(args_str)
-    const obj = objects[ +args[0] ];
-    let res = await obj.fn( start, end, obj.args)
-    let number_resp = await web_api.getOaskGtpCurrPointValue(+args[1], start, end );
-    let p_resp = await web_api.getOaskGtpCurrPointValue(+args[2], start, end );
+    try {
+        const obj = objects[ +args[0] ];
+        let res = await obj.fn( start, end, obj.args)
+        let number_resp = await web_api.getOaskGtpCurrPointValue(+args[1], start, end );
+        let p_resp = await web_api.getOaskGtpCurrPointValue(+args[2], start, end );
+    
+        let num_column = number_resp.values;
+        let p_column = p_resp.values;
+    
+        let num_last = number_resp.group[0].last;
+        let p_last = number_resp.group[0].avg;
+    
+        result = [...res, num_column, num_last, p_column, p_last];
+            
+    } catch (error) {
+        console.error("F7", error)
+        return result
+    }
 
-    let num_column = number_resp.data.values;
-    let p_column = p_resp.data.values;
 
-    let num_last = number_resp.data.group[0].last;
-    let p_last = number_resp.data.group[0].avg;
-
-    result = [...res, num_column, num_last, p_column, p_last];
-
-    console.log(result)
+    //console.log(result)
     return result
 }
-
+//simple column
 async function F8(start, end, args_str) {
     let result =[]
     let args = ParseArgs(args_str)
 
+    try {
+        //request point
+        let resp = await web_api.getOaskGtpCurrPointValue(+args[0], start, end );
+        let column = resp.values;
+        let sum = resp.group[0].sum;
+        let avg = resp.group[0].avg;
+        let min = resp.group[0].min;
+        let max = resp.group[0].max;
+        let last = resp.group[0].last;
+
+    result.push(column)//0
+    result.push(sum)
+    result.push(avg)
+    result.push(min)
+    result.push(max)
+    result.push(last)
+
+} catch (error) {
+    console.error("F8", error)
     return result
 }
+
+    //console.log(result)
+    return result
+}
+
 async function F9(start, end, args_str) {
     let result =[]
     let args = ParseArgs(args_str)
@@ -308,7 +398,7 @@ async function F10(start, end, args_str) {
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-//selector
+//selector 
 async function F101(start, end, args_str) {
     let result =[]
     let promises =[]
@@ -316,29 +406,36 @@ async function F101(start, end, args_str) {
 
     let args = ParseArgs(args_str)
 
-    for (let i = 0; i < args.length; i++) {
+    try {
+        for (let i = 0; i < args.length; i++) {
 
-        console.log(args[i])
+            //console.log(args[i])
+    
+            if (args[i]=='') continue;
+            let cmd = args[i].split(".");
+            const obj = objects[ +cmd[0] ];
+            let res = obj.fn( start, end, obj.args)
+            promises[+cmd[0]] = res;
+        }    
+    
+        responses = await Promise.all(promises)
+    
+        for (let i = 0; i < args.length; i++) {
+            if (args[i]=='') {
+                result[i] = null;
+                continue;
+            }
+            let cmd = args[i].split(".");
+            const obj_index = +cmd[0] ;
+            const par_index = +cmd[1] ;        
+            result[i] = responses[obj_index][par_index]
+        }    
+            
+    } catch (error) {
+        console.error("F101", error)
+        return result
+    }
 
-        if (args[i]=='') continue;
-        let cmd = args[i].split(".");
-        const obj = objects[ +cmd[0] ];
-        let res = obj.fn( start, end, obj.args)
-        promises[+cmd[0]] = res;
-    }    
-
-    responses = await Promise.all(promises)
-
-    for (let i = 0; i < args.length; i++) {
-        if (args[i]=='') {
-            result[i] = null;
-            continue;
-        }
-        let cmd = args[i].split(".");
-        const obj_index = +cmd[0] ;
-        const par_index = +cmd[1] ;        
-        result[i] = responses[obj_index][par_index]
-    }    
     return result
 }
 //ОГСУ. Добові дані Контроль розбалансу тотал

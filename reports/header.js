@@ -22,16 +22,16 @@ exports.parse = (header_config, separator) => {
         let new_row = [];
         for (let j = 0; j < columns.length; j++) {
             let column = columns[j];
-            if( column =='') continue;
+            if(column == '') continue
             let col_obj = {};
             col_obj['text'] = column;
             
             let rs = GetRowSpan(rows, i, j, rows.length);
             let cs = GetColSpan(columns, j, columns.length);
 
-            if (rs > 1) col_obj['rowspan'] = rs;
-            if (cs > 1) col_obj['colspan'] = cs;
-            if (i==rows.length-1) col_obj['key'] = j+1;
+            col_obj['rowspan'] = rs;
+            col_obj['colspan'] = cs;
+            col_obj['key'] = `${i+1}.${j+1}`;
 
             new_row.push(col_obj)
         }    

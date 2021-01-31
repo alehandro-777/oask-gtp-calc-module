@@ -32,6 +32,6 @@ router.patch('/menu/:id',    menu_controller.update )
 router.get('/menu/:id',    menu_controller.findOne )
 
 router.get('/reports/regim/:id', reports_controller.getRegim )
-
+router.get('/reports/excel/:id', reports_controller.getExcel )
 
 module.exports =  router 

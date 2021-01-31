@@ -9,8 +9,12 @@ const errorHandler = require('./routes/error-handler')
 const port = process.env.PORT || 3001;
 const connString = config.get('dbConfig.connString');
 
+const test = require('./generate-test-data');
+const report = require('./reports/report-creator');
 
 const connParams = {useNewUrlParser: true,useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true };
+
+let timer;
 
 mongoose.connect(connString, connParams);
 
@@ -22,6 +26,8 @@ mongoose.connection.on('error', (err) => {
 
 mongoose.connection.once('open', () => { 
     console.log('Mongobd connected Ok')
+    //test.createDocs()
+    //test.createObjects()
 }); 
 
 process.on('exit', ()=>{
@@ -59,6 +65,12 @@ app.use('/images', express.static(__dirname + '/images'));
 // global error handler
 app.use(errorHandler);
 
+const StartReportProcessing = () => {
+    report.createReports()        
+        timer = setTimeout(() => StartReportProcessing(), 120000)
+  };
+  
+StartReportProcessing();
 
 console.log(`Server started at port: ${port}`)
 app.listen(port)
